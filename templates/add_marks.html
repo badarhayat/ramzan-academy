@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3 class="mb-3">Add Marks</h3>
+
+<div class="card p-4 shadow-sm">
+
+<form method="POST">
+
+    <label class="form-label fw-bold">Select Student</label>
+    <select id="student" name="student_id" class="form-control mb-3" required>
+        <option value="">-- Choose Student --</option>
+        {% for s in students %}
+        <option value="{{ s.id }}" data-class="{{ s.class }}">{{ s.name }} ({{ s.class }})</option>
+        {% endfor %}
+    </select>
+
+    <label class="form-label fw-bold">Subject</label>
+    <select id="subject" name="subject" class="form-control mb-3" required></select>
+
+    <label class="form-label fw-bold">Total Marks</label>
+    <input name="total_marks" class="form-control mb-3" required>
+
+    <label class="form-label fw-bold">Obtained Marks</label>
+    <input name="obtained_marks" class="form-control mb-3" required>
+
+    <label class="form-label fw-bold">Test Name (optional)</label>
+    <input name="test_name" class="form-control mb-3">
+
+    <label class="form-label fw-bold">Date (optional)</label>
+    <input name="date" type="date" class="form-control mb-3">
+
+    <button class="btn btn-success btn-rounded px-4">Save Marks</button>
+</form>
+
+</div>
+
+<script>
+    const subjects = JSON.parse(`{{ subjects_by_class | tojson | safe }}`);
+
+    document.getElementById("student").addEventListener("change", function () {
+        let cls = this.options[this.selectedIndex].dataset.class;
+        let list = subjects[cls];
+
+        let subjectSelect = document.getElementById("subject");
+        subjectSelect.innerHTML = "";
+
+        list.forEach(s => {
+            let opt = document.createElement("option");
+            opt.value = s;
+            opt.textContent = s;
+            subjectSelect.appendChild(opt);
+        });
+    });
+</script>
+
+{% endblock %}

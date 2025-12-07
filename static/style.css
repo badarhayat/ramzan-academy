@@ -1,0 +1,35 @@
+/* GLOBAL */
+body {
+    background: #f5f5f5;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* CARDS */
+.card {
+    border-radius: 15px !important;
+    border: none !important;
+}
+
+/* BUTTONS */
+.btn-rounded {
+    border-radius: 30px !important;
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+/* HEADINGS */
+h3, h4, h5, h6 {
+    font-weight: 600;
+}
+
+/* MOBILE SPACING */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}

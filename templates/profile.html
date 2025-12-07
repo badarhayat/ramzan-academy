@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3 class="mb-2">{{ student.name }} — {{ student.class }}</h3>
+<p class="text-muted">{{ student.father_name }} | {{ student.contact }} | Career Goal: {{ student.career_goal }}</p>
+
+<div class="mb-3">
+    <a href="/report/{{ student.id }}/pdf" class="btn btn-success btn-rounded">Download PDF</a>
+</div>
+
+<div class="card p-4 shadow-sm mb-4">
+
+<h5 class="fw-bold">Overall Progress (Average %)</h5>
+<canvas id="mainChart"></canvas>
+
+<hr>
+
+<h5 class="fw-bold mt-4">Subject-wise Progress</h5>
+<div id="subjectCharts"></div>
+
+</div>
+
+<h5 class="mt-4 fw-bold">Marks (Editable)</h5>
+
+<div class="card p-4 shadow-sm">
+<table class="table table-striped">
+    <thead class="table-light">
+        <tr>
+            <th>Date</th>
+            <th>Test</th>
+            <th>Subject</th>
+            <th>Obt</th>
+            <th>Total</th>
+            <th>%</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody id="marksBody"></tbody>
+</table>
+</div>
+
+<script>
+async function loadMarks() {
+    const res = await fetch("/api/student/{{ student.id }}/marks");
+    const data = await res.json();
+
+    // -------------------------------
+    // Display marks table
+    // -------------------------------
+    let tbody = document.getElementById("marksBody");
+    tbody.innerHTML = "";
+
+    data.forEach(m => {
+        tbody.innerHTML += `
+        <tr>
+            <td>${m.date}</td>
+            <td>${m.test_name || ""}</td>
+            <td>${m.subject}</td>
+            <td>${m.obtained}</td>
+            <td>${m.total}</td>
+            <td>${m.percentage}</td>
+            <td>
+                <a href="/marks/${m.id}/edit" class="btn btn-sm btn-warning btn-rounded">Edit</a>
+
+                <form action="/marks/${m.id}/delete" method="POST" class="d-inline"
+                    onsubmit="return confirm('Delete this mark?')">
+                    <button class="btn btn-sm btn-danger btn-rounded">Delete</button>
+                </form>
+            </td>
+        </tr>
+        `;
+    });
+
+    // -------------------------------
+    // MAIN AVERAGE CHART
+    // -------------------------------
+    let dateMap = {};
+    data.forEach(m => {
+        if (!dateMap[m.date]) dateMap[m.date] = [];
+        dateMap[m.date].push(m.percentage);
+    });
+
+    let dates = Object.keys(dateMap);
+    let avg = dates.map(d => dateMap[d].reduce((a,b)=>a+b)/dateMap[d].length);
+
+    new Chart(document.getElementById("mainChart"), {
+        type: "line",
+        data: {
+            labels: dates,
+            datasets: [{ label:"Average %", data: avg, borderColor:"blue", fill:false }]
+        }
+    });
+
+    // -------------------------------
+    // SUBJECT-WISE CHARTS
+    // -------------------------------
+    let subjects = {};
+
+    data.forEach(m => {
+        if (!subjects[m.subject])
+            subjects[m.subject] = { dates: [], pct: [] };
+
+        subjects[m.subject].dates.push(m.date);
+        subjects[m.subject].pct.push(m.percentage);
+    });
+
+    let container = document.getElementById("subjectCharts");
+    container.innerHTML = "";
+
+    for (let sub in subjects) {
+        container.innerHTML += `
+            <div class="mt-4">
+                <h6 class="fw-bold">${sub}</h6>
+                <canvas id="chart_${sub.replace(/\\s+/g,'_')}"></canvas>
+            </div>
+        `;
+
+        new Chart(document.getElementById(`chart_${sub.replace(/\\s+/g,'_')}`), {
+            type: "line",
+            data: {
+                labels: subjects[sub].dates,
+                datasets: [{ label: sub, data: subjects[sub].pct, borderColor:"green", fill:false }]
+            }
+        });
+    }
+}
+
+loadMarks();
+</script>
+
+{% endblock %}
+

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Edit Marks</h3>
+
+<div class="card p-4 shadow-sm">
+
+<form method="POST">
+
+    <label class="form-label fw-bold">Subject</label>
+    <select name="subject" class="form-control mb-3">
+        {% for s in subjects %}
+        <option value="{{s}}" {% if s==mark.subject %}selected{% endif %}>{{s}}</option>
+        {% endfor %}
+    </select>
+
+    <label class="form-label fw-bold">Total Marks</label>
+    <input name="total_marks" value="{{ mark.total_marks }}" class="form-control mb-3">
+
+    <label class="form-label fw-bold">Obtained Marks</label>
+    <input name="obtained_marks" value="{{ mark.obtained_marks }}" class="form-control mb-3">
+
+    <label class="form-label fw-bold">Test Name</label>
+    <input name="test_name" value="{{ mark.test_name }}" class="form-control mb-3">
+
+    <label class="form-label fw-bold">Date</label>
+    <input name="date" type="date" value="{{ mark.date }}" class="form-control mb-3">
+
+    <button class="btn btn-primary btn-rounded px-4">Update</button>
+
+</form>
+
+</div>
+
+{% endblock %}
